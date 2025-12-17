@@ -1,6 +1,7 @@
 import express from 'express';
 import {
     deleteComment,
+    updateComment,
     likeComment,
 } from '../controllers/commentController.js';
 import { protect } from '../middleware/authMiddleware.js';
@@ -8,6 +9,7 @@ import { protect } from '../middleware/authMiddleware.js';
 const router = express.Router();
 
 router.route('/:id')
+    .put(protect, updateComment)
     .delete(protect, deleteComment);
 
 router.put('/:id/like', protect, likeComment);

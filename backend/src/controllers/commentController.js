@@ -1,6 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import Comment from '../models/Comment.js';
 import Post from '../models/Post.js';
+import User from '../models/User.js';
 import { createNotification } from './notificationController.js';
 
 // @desc    Get comments for a post
@@ -47,10 +48,52 @@ const addComment = asyncHandler(async (req, res) => {
         comment: comment._id,
     });
 
+    // Notification for Mentions (@username)
+    const mentionRegex = /@(\w+)/g;
+    const mentions = [...new Set(content.match(mentionRegex) || [])]; // Unique mentions
+
+    for (const mention of mentions) {
+        const username = mention.substring(1); // Remove @
+        const mentionedUser = await User.findOne({ username });
+
+        if (mentionedUser) {
+            await createNotification({
+                recipient: mentionedUser._id,
+                sender: req.user._id,
+                type: 'mention',
+                post: post._id,
+                comment: comment._id,
+            });
+        }
+    }
+
     // Populate user for the new comment
     await comment.populate('user', 'fullName username profilePicture');
 
     res.status(201).json(comment);
+});
+
+// @desc    Update comment
+// @route   PUT /api/comments/:id
+// @access  Private
+const updateComment = asyncHandler(async (req, res) => {
+    const comment = await Comment.findById(req.params.id);
+
+    if (comment) {
+        if (comment.user.toString() !== req.user._id.toString()) {
+            res.status(401);
+            throw new Error('User not authorized');
+        }
+
+        comment.content = req.body.content || comment.content;
+        const updatedComment = await comment.save();
+        await updatedComment.populate('user', 'fullName username profilePicture');
+
+        res.json(updatedComment);
+    } else {
+        res.status(404);
+        throw new Error('Comment not found');
+    }
 });
 
 // @desc    Delete comment
@@ -65,7 +108,6 @@ const deleteComment = asyncHandler(async (req, res) => {
     }
 
     // Allow comment author OR post author to delete
-    // Need to fetch post to check post author
     const post = await Post.findById(comment.post);
 
     if (
@@ -120,6 +162,7 @@ const likeComment = asyncHandler(async (req, res) => {
 export {
     getPostComments,
     addComment,
+    updateComment,
     deleteComment,
     likeComment,
 };

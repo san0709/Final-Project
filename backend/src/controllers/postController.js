@@ -7,14 +7,23 @@ import { createNotification } from './notificationController.js';
 // @desc    Create a new post
 // @route   POST /api/posts
 // @access  Private
+// @desc    Create a new post
+// @route   POST /api/posts
+// @access  Private
 const createPost = asyncHandler(async (req, res) => {
-    const { caption, mediaUrl, mediaType, location } = req.body;
+    const { caption, mediaUrl, mediaType, mediaPublicId, location } = req.body;
+
+    if (!caption && !mediaUrl) {
+        res.status(400);
+        throw new Error('Post must have a caption or media');
+    }
 
     const post = await Post.create({
         user: req.user._id,
         caption,
         mediaUrl,
         mediaType: mediaUrl ? (mediaType || 'image') : 'none',
+        mediaPublicId,
         location,
     });
 
@@ -81,9 +90,20 @@ const updatePost = asyncHandler(async (req, res) => {
             throw new Error('User not authorized');
         }
 
-        post.caption = req.body.caption || post.caption;
-        post.location = req.body.location || post.location;
-        // Usually media isn't editable, but can be if needed
+        post.caption = req.body.caption !== undefined ? req.body.caption : post.caption;
+        post.location = req.body.location !== undefined ? req.body.location : post.location;
+
+        // Update Media
+        if (req.body.mediaUrl) {
+            post.mediaUrl = req.body.mediaUrl;
+            post.mediaType = req.body.mediaType || 'image';
+            post.mediaPublicId = req.body.mediaPublicId || post.mediaPublicId;
+        } else if (req.body.mediaUrl === '') {
+            // If explicitly set to empty string, remove media
+            post.mediaUrl = undefined;
+            post.mediaType = 'none';
+            post.mediaPublicId = undefined;
+        }
 
         const updatedPost = await post.save();
         // Re-populate for response
@@ -110,6 +130,12 @@ const deletePost = asyncHandler(async (req, res) => {
 
         // Delete associated comments
         await Comment.deleteMany({ post: post._id });
+
+        // MOCK: Cloudinary Deletion
+        if (post.mediaPublicId) {
+            // In a real app, you would use cloudinary.uploader.destroy(post.mediaPublicId)
+            console.log(`[Mock] Deleted Cloudinary media: ${post.mediaPublicId}`);
+        }
 
         await post.deleteOne();
         res.json({ message: 'Post removed' });

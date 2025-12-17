@@ -165,6 +165,15 @@ const acceptFriendRequest = asyncHandler(async (req, res) => {
         receiver.friends.push(sender._id);
         await sender.save();
         await receiver.save();
+
+        // Notification: "User X accepted your friend request"
+        // We use 'follow' type as it represents a new connection/following
+        await createNotification({
+            recipient: sender._id,
+            sender: receiver._id,
+            type: 'follow', // Friend request accepted
+            text: 'accepted your friend request',
+        });
     }
 
     res.json({ message: 'Friend request accepted' });
@@ -269,6 +278,35 @@ const removeFriend = asyncHandler(async (req, res) => {
     res.json({ message: 'Friend removed' });
 });
 
+// @desc    Cancel Friend Request (Sender cancels)
+// @route   DELETE /api/users/friend-request/:requestId/cancel
+// @access  Private
+const cancelFriendRequest = asyncHandler(async (req, res) => {
+    const requestId = req.params.requestId;
+    const userId = req.user._id;
+
+    const request = await FriendRequest.findById(requestId);
+
+    if (!request) {
+        res.status(404);
+        throw new Error('Friend request not found');
+    }
+
+    if (request.sender.toString() !== userId.toString()) {
+        res.status(401);
+        throw new Error('Not authorized to cancel this request');
+    }
+
+    if (request.status !== 'pending') {
+        res.status(400);
+        throw new Error('Request already handled');
+    }
+
+    await request.deleteOne();
+
+    res.json({ message: 'Friend request canceled' });
+});
+
 // @desc    Search Users
 // @route   GET /api/users/search
 // @access  Private
@@ -296,6 +334,7 @@ export {
     sendFriendRequest,
     acceptFriendRequest,
     declineFriendRequest,
+    cancelFriendRequest,
     getFriendRequests,
     getFriendsList,
     removeFriend,

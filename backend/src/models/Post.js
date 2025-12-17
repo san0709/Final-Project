@@ -14,6 +14,9 @@ const postSchema = mongoose.Schema({
     mediaUrl: {
         type: String, // URL from Cloudinary
     },
+    mediaPublicId: {
+        type: String, // Cloudinary Public ID for deletion
+    },
     mediaType: {
         type: String,
         enum: ['image', 'video', 'none'],

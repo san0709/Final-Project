@@ -6,6 +6,7 @@ import {
     sendFriendRequest,
     acceptFriendRequest,
     declineFriendRequest,
+    cancelFriendRequest,
     getFriendRequests,
     getFriendsList,
     removeFriend,
@@ -27,6 +28,7 @@ router.get('/search', protect, searchUsers);
 router.post('/friend-request/:userId', protect, sendFriendRequest);
 router.put('/friend-request/:requestId/accept', protect, acceptFriendRequest);
 router.put('/friend-request/:requestId/decline', protect, declineFriendRequest);
+router.delete('/friend-request/:requestId/cancel', protect, cancelFriendRequest);
 router.get('/friend-requests', protect, getFriendRequests);
 
 router.get('/:userId/friends', protect, getFriendsList);
