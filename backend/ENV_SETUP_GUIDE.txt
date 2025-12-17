@@ -1,0 +1,63 @@
+# ========================================
+# OPTION 1: LOCAL MONGODB (For Testing)
+# ========================================
+# Copy this to your .env file if you have MongoDB installed locally
+
+NODE_ENV=development
+PORT=5000
+MONGO_URI=mongodb://localhost:27017/social_media_db
+JWT_SECRET=your_super_secret_jwt_key_here_12345
+JWT_EXPIRE=30d
+JWT_REFRESH_SECRET=your_super_secret_refresh_key_here_67890
+JWT_REFRESH_EXPIRE=30d
+FRONTEND_URL=http://localhost:5173
+
+# ========================================
+# OPTION 2: MONGODB ATLAS (For Production)
+# ========================================
+# Replace the values below with your actual MongoDB Atlas credentials
+
+# NODE_ENV=development
+# PORT=5000
+# MONGO_URI=
+# JWT_SECRET=your_super_secret_jwt_key_here_12345
+# JWT_EXPIRE=30d
+# JWT_REFRESH_SECRET=your_super_secret_refresh_key_here_67890
+# JWT_REFRESH_EXPIRE=30d
+# FRONTEND_URL=http://localhost:5173
+
+# ========================================
+# HOW TO GET YOUR MONGODB ATLAS CONNECTION STRING:
+# ========================================
+# 1. Go to https://cloud.mongodb.com
+# 2. Click on your cluster
+# 3. Click "Connect" button
+# 4. Choose "Connect your application"
+# 5. Copy the connection string
+# 6. Replace <password> with your actual database user password
+# 7. Replace <dbname> with: social_media_db
+# 8. If password has special characters, URL encode them:
+#    @ = %40
+#    # = %23
+#    $ = %24
+#    % = %25
+#    & = %26
+
+# Example with special characters:
+# If password is: MyP@ss123!
+# Use: MyP%40ss123%21
+
+# ========================================
+# TROUBLESHOOTING MONGODB ATLAS:
+# ========================================
+# If you get "bad auth" error:
+# 1. Verify username and password are correct
+# 2. Check that you created a DATABASE USER (not your Atlas account)
+# 3. Go to Database Access → Add New Database User
+# 4. Username: Choose a simple name (e.g., "admin" or "dbuser")
+# 5. Password: Use "Autogenerate Secure Password" or create one without special characters
+# 6. Database User Privileges: "Read and write to any database"
+# 7. Add User
+# 8. Go to Network Access → Add IP Address → Allow Access from Anywhere (0.0.0.0/0)
+# 9. Wait 1-2 minutes for changes to propagate
+# 10. Update your connection string with the new credentials
