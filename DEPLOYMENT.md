@@ -73,11 +73,13 @@ VITE_API_URL=https://your-backend-app.onrender.com/api
    Name: social-media-backend (or your choice)
    Region: Choose closest to your users
    Branch: main
-   Root Directory: backend
+   Root Directory: backend  <-- IMPORTANT: Set this to 'backend' or deployment will fail!
    Runtime: Node
    Build Command: npm install
    Start Command: npm start
    ```
+
+   > **Note:** If you see an error saying "Couldn't find a package.json file", it means you missed setting the **Root Directory** to `backend`.
 
 4. **Add Environment Variables**:
    - Click "Environment" tab

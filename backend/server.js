@@ -22,14 +22,22 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000'];
+const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://localhost:5174',
+    'http://localhost:5175',
+];
 
 app.use(cors({
     origin: (origin, callback) => {
         if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) !== -1 || origin === process.env.FRONTEND_URL) {
+
+        // Allow any localhost origin for development
+        if (origin.startsWith('http://localhost') || allowedOrigins.indexOf(origin) !== -1 || origin === process.env.FRONTEND_URL) {
             callback(null, true);
         } else {
+            console.log('Blocked by CORS:', origin); // Log the blocked origin for debugging
             callback(new Error('Not allowed by CORS'));
         }
     },
