@@ -10,9 +10,25 @@ import { createNotification } from './notificationController.js';
 // @desc    Create a new post
 // @route   POST /api/posts
 // @access  Private
-const createPost = asyncHandler(async (req, res) => {
-    const { caption, mediaUrl, mediaType, mediaPublicId, location } = req.body;
 
+const createPost = asyncHandler(async (req, res) => {
+    const { caption, location } = req.body;
+
+    let mediaUrl = null;
+    let mediaType = 'none';
+
+    // 🔥 Multer file handling
+    if (req.file) {
+        mediaUrl = `/uploads/${req.file.filename}`;
+
+        if (req.file.mimetype.startsWith('video')) {
+            mediaType = 'video';
+        } else {
+            mediaType = 'image';
+        }
+    }
+
+    // Atleast caption or media must be present
     if (!caption && !mediaUrl) {
         res.status(400);
         throw new Error('Post must have a caption or media');
@@ -22,15 +38,16 @@ const createPost = asyncHandler(async (req, res) => {
         user: req.user._id,
         caption,
         mediaUrl,
-        mediaType: mediaUrl ? (mediaType || 'image') : 'none',
-        mediaPublicId,
+        mediaType,
         location,
     });
 
-    const populatedPost = await Post.findById(post._id).populate('user', 'fullName username profilePicture');
+    const populatedPost = await Post.findById(post._id)
+        .populate('user', 'fullName username profilePicture');
 
     res.status(201).json(populatedPost);
 });
+
 
 // @desc    Get all posts (News Feed) - User + Friends
 // @route   GET /api/posts/feed

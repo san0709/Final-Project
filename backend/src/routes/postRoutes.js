@@ -1,4 +1,6 @@
 import express from 'express';
+import upload from '../middleware/uploadMiddleware.js';
+
 import {
     createPost,
     getFeedPosts,
@@ -17,7 +19,11 @@ import { protect } from '../middleware/authMiddleware.js';
 const router = express.Router();
 
 router.route('/')
-    .post(protect, createPost);
+    .post(
+        protect,
+        upload.single('media'),
+        createPost
+    );
 
 router.get('/feed', protect, getFeedPosts);
 router.get('/user/:userId', protect, getUserPosts);

@@ -10,6 +10,8 @@ import postRoutes from './src/routes/postRoutes.js';
 import commentRoutes from './src/routes/commentRoutes.js';
 import storyRoutes from './src/routes/storyRoutes.js';
 import notificationRoutes from './src/routes/notificationRoutes.js';
+import path from 'path';
+
 
 dotenv.config();
 
@@ -21,6 +23,9 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+
+
 
 const allowedOrigins = [
     'http://localhost:5173',

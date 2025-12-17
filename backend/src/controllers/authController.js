@@ -3,6 +3,8 @@ import asyncHandler from 'express-async-handler';
 import User from '../models/User.js';
 import generateToken from '../utils/generateToken.js';
 import sendEmail from '../utils/sendEmail.js';
+import jwt from 'jsonwebtoken';
+
 
 // @desc    Auth user & get token
 // @route   POST /api/auth/login
