@@ -88,9 +88,8 @@ const forgotPassword = asyncHandler(async (req, res) => {
     await user.save({ validateBeforeSave: false });
 
     // Create reset url
-    const resetUrl = `${req.protocol}://${req.get('host')}/reset-password/${resetToken}`;
-    // NOTE: In production, this should point to the frontend URL, e.g.
-    // const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
 
     const message = `You are receiving this email because you (or someone else) has requested the reset of a password. Please make a PUT request to: \n\n ${resetUrl}`;
 
@@ -100,6 +99,10 @@ const forgotPassword = asyncHandler(async (req, res) => {
             subject: 'Password Reset Token',
             message,
         });
+
+        // For development convenience
+        console.log(`Reset Token: ${resetToken}`);
+        console.log(`Reset URL: ${resetUrl}`);
 
         res.status(200).json({ success: true, data: 'Email sent' });
     } catch (error) {
@@ -149,10 +152,29 @@ const resetPassword = asyncHandler(async (req, res) => {
     });
 });
 
+// @desc    Change Password
+// @route   PUT /api/auth/change-password
+// @access  Private
+const changePassword = asyncHandler(async (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+
+    const user = await User.findById(req.user._id);
+
+    if (user && (await user.matchPassword(currentPassword))) {
+        user.password = newPassword;
+        await user.save();
+        res.json({ message: 'Password changed successfully' });
+    } else {
+        res.status(401);
+        throw new Error('Invalid current password');
+    }
+});
+
 export {
     authUser,
     registerUser,
     logoutUser,
     forgotPassword,
     resetPassword,
+    changePassword,
 };
