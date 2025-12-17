@@ -1,0 +1,64 @@
+import { useState, useEffect } from 'react';
+import api from '../../services/api';
+import { FaPlus } from 'react-icons/fa';
+
+const StoryList = () => {
+    const [stories, setStories] = useState([]);
+    // Group stories by user for UI? Or just show list.
+    // Let's assume the API returns flat list, we'll dedupe by user or just show all.
+    // Better: Filter unique users who have stories.
+
+    useEffect(() => {
+        const fetchStories = async () => {
+            try {
+                const { data } = await api.get('/stories');
+                setStories(data);
+            } catch (err) {
+                console.error('Failed to fetch stories', err);
+            }
+        };
+        fetchStories();
+    }, []);
+
+    // Simplified: Just show unique users with stories
+    // We can show the first story of each user as preview
+    const uniqueStories = [];
+    const userIds = new Set();
+
+    stories.forEach(story => {
+        if (!userIds.has(story.user._id)) {
+            userIds.add(story.user._id);
+            uniqueStories.push(story);
+        }
+    });
+
+    return (
+        <div className="flex space-x-4 overflow-x-auto pb-4 mb-4 scrollbar-hide">
+            {/* Create Story Button */}
+            <div className="flex-shrink-0 flex flex-col items-center space-y-1 cursor-pointer">
+                <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center border-2 border-dashed border-blue-500 text-blue-500 relative">
+                    <FaPlus size={24} />
+                    {/* Input for upload could be hidden here */}
+                </div>
+                <span className="text-xs font-medium">Add Story</span>
+            </div>
+
+            {/* Friends Stories */}
+            {uniqueStories.map(story => (
+                <div key={story._id} className="flex-shrink-0 flex flex-col items-center space-y-1 cursor-pointer">
+                    <div className="w-16 h-16 rounded-full p-[2px] bg-gradient-to-tr from-yellow-400 to-red-500">
+                        <img
+                            src={story.user.profilePicture || 'https://via.placeholder.com/150'}
+                            alt={story.user.username}
+                            className="w-full h-full rounded-full object-cover border-2 border-white"
+                        />
+                    </div>
+                    <span className="text-xs font-medium max-w-[64px] truncate">{story.user.username}</span>
+                    {/* On click -> Open Modal Viewer (not implemented in this simplified step) */}
+                </div>
+            ))}
+        </div>
+    );
+};
+
+export default StoryList;
