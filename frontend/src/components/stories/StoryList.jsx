@@ -48,7 +48,7 @@ const StoryList = () => {
                 <div key={story._id} className="flex-shrink-0 flex flex-col items-center space-y-1 cursor-pointer">
                     <div className="w-16 h-16 rounded-full p-[2px] bg-gradient-to-tr from-yellow-400 to-red-500">
                         <img
-                            src={story.user.profilePicture || 'https://via.placeholder.com/150'}
+                            src={story.user.profilePicture || 'https://placehold.co/150'}
                             alt={story.user.username}
                             className="w-full h-full rounded-full object-cover border-2 border-white"
                         />

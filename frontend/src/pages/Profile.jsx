@@ -67,7 +67,7 @@ const Profile = () => {
                     <div className="absolute -top-16 left-6 grid place-items-center">
                         <div className="w-32 h-32 rounded-full border-4 border-white bg-white overflow-hidden">
                             <img
-                                src={profile.profilePicture || 'https://via.placeholder.com/150'}
+                                src={profile.profilePicture || 'https://placehold.co/150'}
                                 alt={profile.username}
                                 className="w-full h-full object-cover px-0 py-0"
                             />
