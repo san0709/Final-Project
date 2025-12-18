@@ -10,28 +10,44 @@ import {
     getFriendRequests,
     getFriendsList,
     removeFriend,
-    searchUsers
+    searchUsers,
+    getSentFriendRequests,
 } from '../controllers/userController.js';
 import { protect } from '../middleware/authMiddleware.js';
+import upload from '../middleware/uploadMiddleware.js';
 
 const router = express.Router();
 
-router.route('/profile')
-    .put(protect, updateUserProfile);
+/* ✅ ONLY ONE profile update route */
+router.put(
+    '/profile',
+    protect,
+    upload.fields([
+        { name: 'profilePicture', maxCount: 1 },
+        { name: 'coverPhoto', maxCount: 1 },
+    ]),
+    updateUserProfile
+);
 
+// PROFILE
 router.get('/profile/me', protect, getCurrentUserProfile);
-router.get('/:username', protect, getUserProfileByUsername);
 
+// SEARCH & REQUEST HELPERS (STATIC)
 router.get('/search', protect, searchUsers);
+router.get('/sent-requests', protect, getSentFriendRequests);
+router.get('/friend-requests', protect, getFriendRequests);
 
-// Friend System Routes
+// FRIEND ACTIONS
 router.post('/friend-request/:userId', protect, sendFriendRequest);
 router.put('/friend-request/:requestId/accept', protect, acceptFriendRequest);
 router.put('/friend-request/:requestId/decline', protect, declineFriendRequest);
 router.delete('/friend-request/:requestId/cancel', protect, cancelFriendRequest);
-router.get('/friend-requests', protect, getFriendRequests);
 
+// FRIENDS
 router.get('/:userId/friends', protect, getFriendsList);
 router.delete('/friends/:friendId', protect, removeFriend);
+
+// 🚨 USERNAME ROUTE MUST BE LAST
+router.get('/:username', protect, getUserProfileByUsername);
 
 export default router;

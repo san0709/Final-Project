@@ -40,32 +40,41 @@ const getCurrentUserProfile = asyncHandler(async (req, res) => {
 const updateUserProfile = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id);
 
-    if (user) {
-        user.fullName = req.body.fullName || user.fullName;
-        user.bio = req.body.bio !== undefined ? req.body.bio : user.bio;
-        user.location = req.body.location !== undefined ? req.body.location : user.location;
-        user.website = req.body.website !== undefined ? req.body.website : user.website;
-        user.profilePicture = req.body.profilePicture || user.profilePicture;
-        user.coverPhoto = req.body.coverPhoto || user.coverPhoto;
-
-        const updatedUser = await user.save();
-
-        res.json({
-            _id: updatedUser._id,
-            username: updatedUser.username,
-            fullName: updatedUser.fullName,
-            email: updatedUser.email,
-            bio: updatedUser.bio,
-            location: updatedUser.location,
-            website: updatedUser.website,
-            profilePicture: updatedUser.profilePicture,
-            coverPhoto: updatedUser.coverPhoto,
-        });
-    } else {
+    if (!user) {
         res.status(404);
         throw new Error('User not found');
     }
+
+    // Text fields
+    user.fullName = req.body.fullName || user.fullName;
+    user.bio = req.body.bio !== undefined ? req.body.bio : user.bio;
+    user.location = req.body.location !== undefined ? req.body.location : user.location;
+    user.website = req.body.website !== undefined ? req.body.website : user.website;
+
+    // 🔥 THIS IS CRITICAL
+    if (req.files?.profilePicture) {
+        user.profilePicture = `/uploads/${req.files.profilePicture[0].filename}`;
+    }
+
+    if (req.files?.coverPhoto) {
+        user.coverPhoto = `/uploads/${req.files.coverPhoto[0].filename}`;
+    }
+
+    const updatedUser = await user.save();
+
+    res.json({
+        _id: updatedUser._id,
+        username: updatedUser.username,
+        fullName: updatedUser.fullName,
+        email: updatedUser.email,
+        bio: updatedUser.bio,
+        location: updatedUser.location,
+        website: updatedUser.website,
+        profilePicture: updatedUser.profilePicture,
+        coverPhoto: updatedUser.coverPhoto,
+    });
 });
+
 
 // @desc    Send Friend Request
 // @route   POST /api/users/friend-request/:userId
@@ -223,6 +232,14 @@ const getFriendRequests = asyncHandler(async (req, res) => {
     res.json(requests);
 });
 
+const getSentFriendRequests = asyncHandler(async (req, res) => {
+    const requests = await FriendRequest.find({
+        sender: req.user._id,
+        status: 'pending'
+    }).populate('receiver', 'username fullName profilePicture');
+
+    res.json(requests);
+});
 
 // @desc    Get Friends List
 // @route   GET /api/users/:userId/friends
@@ -336,6 +353,7 @@ export {
     declineFriendRequest,
     cancelFriendRequest,
     getFriendRequests,
+    getSentFriendRequests,
     getFriendsList,
     removeFriend,
     searchUsers

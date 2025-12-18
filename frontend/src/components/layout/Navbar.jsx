@@ -1,12 +1,31 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { FaHome, FaUser, FaBell, FaSignOutAlt, FaSearch } from 'react-icons/fa';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { FaUserFriends } from 'react-icons/fa';
+
+
 
 const Navbar = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const [search, setSearch] = useState('');
+    const [requestCount, setRequestCount] = useState(0);
+
+    useEffect(() => {
+        const fetchFriendRequests = async () => {
+            try {
+                const { data } = await api.get('/users/friend-requests');
+                setRequestCount(data.length);
+            } catch (err) {
+                console.error('Failed to fetch friend requests');
+            }
+        };
+
+        if (user) {
+            fetchFriendRequests();
+        }
+    }, [user]);
 
     const handleLogout = async () => {
         await logout();
@@ -16,10 +35,10 @@ const Navbar = () => {
     const handleSearch = (e) => {
         e.preventDefault();
         if (search.trim()) {
-            // Navigate to search page (implement later)
-            console.log('Searching for:', search);
+            navigate(`/search?q=${search}`);
+            setSearch('');
         }
-    }
+    };
 
     return (
         <nav className="bg-white shadow sticky top-0 z-50">
@@ -30,7 +49,7 @@ const Navbar = () => {
                             SocialApp
                         </Link>
                         {user && (
-                            <form onSubmit={handleSearch} className="ml-4 hidden md:block">
+                            <form onSubmit={handleSearch} className="ml-4">
                                 <div className="relative text-gray-400 focus-within:text-gray-600">
                                     <span className="absolute inset-y-0 left-0 flex items-center pl-2">
                                         <FaSearch />
@@ -56,9 +75,22 @@ const Navbar = () => {
                                 <FaBell size={20} />
                                 {/* Notification Badge could go here */}
                             </Link>
+                            <Link
+                                to="/friend-requests"
+                                className="text-gray-600 hover:text-blue-600 p-2 rounded-full hover:bg-gray-100 transition"
+                                title="Friend Requests"
+                            >
+                                <FaUserFriends size={20} />
+                            </Link>
+
                             <Link to={`/profile/${user.username}`} className="text-gray-600 hover:text-blue-600 p-2 rounded-full hover:bg-gray-100 transition">
                                 {user.profilePicture ? (
-                                    <img src={user.profilePicture} alt="Profile" className="w-6 h-6 rounded-full" />
+                                    <img
+                                        src={`http://localhost:5000${user.profilePicture}`}
+                                        alt="Profile"
+                                        className="w-6 h-6 rounded-full object-cover"
+                                    />
+
                                 ) : (
                                     <FaUser size={20} />
                                 )}

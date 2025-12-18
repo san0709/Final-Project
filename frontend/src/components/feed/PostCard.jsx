@@ -1,6 +1,14 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaRegHeart, FaHeart, FaRegComment, FaShare } from 'react-icons/fa';
+import {
+    FaRegHeart,
+    FaHeart,
+    FaRegComment,
+    FaShare,
+    FaEdit,
+    FaTrash,
+    FaEllipsisH,
+} from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -8,19 +16,31 @@ import CommentBox from './CommentBox';
 
 const PostCard = ({ post }) => {
     const { user } = useAuth();
+
     const [likes, setLikes] = useState(post.likes || []);
     const [isLiked, setIsLiked] = useState(post.likes.includes(user?._id));
     const [showComments, setShowComments] = useState(false);
-    const [comments, setComments] = useState([]); // Fetch on toggle
+    const [comments, setComments] = useState([]);
     const [commentsCount, setCommentsCount] = useState(post.commentsCount);
 
-    // Optimistic UI Update
+    // Post edit
+    const isOwner = user?._id === post.user._id;
+    const [showMenu, setShowMenu] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedCaption, setEditedCaption] = useState(post.caption);
+
+    // Comment edit
+    const [editingCommentId, setEditingCommentId] = useState(null);
+    const [editedComment, setEditedComment] = useState('');
+
+    /* ---------------- POST ACTIONS ---------------- */
+
     const handleLike = async () => {
-        const previousLikes = likes;
-        const previousIsLiked = isLiked;
+        const prevLikes = likes;
+        const prevIsLiked = isLiked;
 
         if (isLiked) {
-            setLikes(likes.filter(id => id !== user._id));
+            setLikes(likes.filter((id) => id !== user._id));
             setIsLiked(false);
         } else {
             setLikes([...likes, user._id]);
@@ -29,94 +49,258 @@ const PostCard = ({ post }) => {
 
         try {
             await api.put(`/posts/${post._id}/like`);
-            // Could sync with server response here to be safe
-        } catch (error) {
-            // Revert on error
-            setLikes(previousLikes);
-            setIsLiked(previousIsLiked);
-            console.error("Like failed", error);
+        } catch {
+            setLikes(prevLikes);
+            setIsLiked(prevIsLiked);
         }
     };
 
+    const handleEditPost = () => {
+        setIsEditing(true);
+        setShowMenu(false);
+    };
+
+    const handleUpdatePost = async () => {
+        try {
+            const { data } = await api.put(`/posts/${post._id}`, {
+                caption: editedCaption,
+            });
+            post.caption = data.caption;
+            setIsEditing(false);
+        } catch {
+            alert('Failed to update post');
+        }
+    };
+
+    const handleDeletePost = async () => {
+        if (!window.confirm('Delete this post?')) return;
+        try {
+            await api.delete(`/posts/${post._id}`);
+            window.location.reload();
+        } catch {
+            alert('Failed to delete post');
+        }
+    };
+
+    /* ---------------- COMMENTS ---------------- */
+
+    const fetchComments = async () => {
+        const { data } = await api.get(`/posts/${post._id}/comments`);
+        setComments(data);
+    };
+
+    const handleCommentEdit = (comment) => {
+        setEditingCommentId(comment._id);
+        setEditedComment(comment.content);
+    };
+
+    const handleCommentUpdate = async (commentId) => {
+        try {
+            const { data } = await api.put(`/comments/${commentId}`, {
+                content: editedComment,
+            });
+            setComments(
+                comments.map((c) => (c._id === commentId ? data : c))
+            );
+            setEditingCommentId(null);
+            setEditedComment('');
+        } catch {
+            alert('Failed to update comment');
+        }
+    };
+
+    const handleCommentDelete = async (commentId) => {
+        if (!window.confirm('Delete this comment?')) return;
+        try {
+            await api.delete(`/comments/${commentId}`);
+            setComments(comments.filter((c) => c._id !== commentId));
+            setCommentsCount((c) => c - 1);
+        } catch {
+            alert('Failed to delete comment');
+        }
+    };
+
+    /* ---------------- UI ---------------- */
+
     return (
         <div className="bg-white rounded-lg shadow mb-6">
+            {/* Header */}
             <div className="p-4 flex items-center justify-between">
                 <div className="flex items-center">
                     <Link to={`/profile/${post.user.username}`}>
-                        {post.user.profilePicture ? (
-                            <img src={post.user.profilePicture} alt={post.user.username} className="w-10 h-10 rounded-full object-cover" />
-                        ) : (
-                            <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 font-bold">
-                                {post.user.fullName.charAt(0)}
-                            </div>
-                        )}
+                        <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center font-bold">
+                            {post.user.fullName.charAt(0)}
+                        </div>
                     </Link>
                     <div className="ml-3">
-                        <Link to={`/profile/${post.user.username}`} className="font-semibold text-gray-900 hover:underline">
-                            {post.user.fullName}
-                        </Link>
+                        <div className="font-semibold">{post.user.fullName}</div>
                         <div className="text-xs text-gray-500">
                             {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
                         </div>
                     </div>
                 </div>
-                {/* Dropdown for Edit/Delete could go here */}
+
+                {isOwner && (
+                    <div className="relative">
+                        <button onClick={() => setShowMenu(!showMenu)}>
+                            <FaEllipsisH />
+                        </button>
+                        {showMenu && (
+                            <div className="absolute right-0 bg-white border rounded shadow">
+                                <button onClick={handleEditPost} className="px-3 py-2 text-sm">
+                                    <FaEdit className="inline mr-1" /> Edit
+                                </button>
+                                <button
+                                    onClick={handleDeletePost}
+                                    className="px-3 py-2 text-sm text-red-600"
+                                >
+                                    <FaTrash className="inline mr-1" /> Delete
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
 
+            {/* Caption */}
             <div className="px-4 pb-2">
-                {post.caption && <p className="text-gray-800 whitespace-pre-wrap">{post.caption}</p>}
+                {isEditing ? (
+                    <>
+                        <textarea
+                            value={editedCaption}
+                            onChange={(e) => setEditedCaption(e.target.value)}
+                            className="w-full border rounded p-2"
+                        />
+                        <div className="mt-2 flex gap-2">
+                            <button
+                                onClick={handleUpdatePost}
+                                className="bg-blue-600 text-white px-3 py-1 rounded"
+                            >
+                                Save
+                            </button>
+                            <button
+                                onClick={() => setIsEditing(false)}
+                                className="bg-gray-200 px-3 py-1 rounded"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </>
+                ) : (
+                    post.caption && <p>{post.caption}</p>
+                )}
             </div>
 
-            {post.mediaUrl && post.mediaType !== 'none' && (
-                <div className="mt-2">
+            {/* Media */}
+            {post.mediaUrl && (
+                <div>
                     {post.mediaType === 'image' ? (
-                        <img src={post.mediaUrl} alt="Post content" className="w-full h-auto object-cover max-h-[500px]" />
+                        <img
+                            src={`http://localhost:5000${post.mediaUrl}`}
+                            className="w-full max-h-[500px] object-cover"
+                        />
                     ) : (
-                        <video src={post.mediaUrl} controls className="w-full max-h-[500px]" />
+                        <video
+                            src={`http://localhost:5000${post.mediaUrl}`}
+                            controls
+                            className="w-full max-h-[500px]"
+                        />
                     )}
                 </div>
             )}
 
-            <div className="px-4 py-2 border-t flex items-center justify-between text-gray-500 text-sm">
-                <div className="flex items-center space-x-1">
-                    <FaHeart className="text-red-500" />
-                    <span>{likes.length}</span>
+            {/* Actions */}
+            <div className="px-4 py-2 border-t flex justify-between text-sm text-gray-500">
+                <div>
+                    <FaHeart className="inline text-red-500" /> {likes.length}
                 </div>
-                <div className="flex items-center space-x-1 cursor-pointer" onClick={() => setShowComments(!showComments)}>
-                    <span>{commentsCount} comments</span>
+                <div
+                    className="cursor-pointer"
+                    onClick={() => {
+                        if (!showComments) fetchComments();
+                        setShowComments(!showComments);
+                    }}
+                >
+                    {commentsCount} comments
                 </div>
             </div>
 
+            {/* Like / Comment */}
             <div className="border-t px-4 py-2 flex justify-around">
-                <button
-                    onClick={handleLike}
-                    className={`flex items-center space-x-2 px-4 py-2 rounded hover:bg-gray-100 transition ${isLiked ? 'text-red-500' : 'text-gray-600'}`}
-                >
-                    {isLiked ? <FaHeart /> : <FaRegHeart />}
-                    <span>Like</span>
+                <button onClick={handleLike}>
+                    {isLiked ? <FaHeart /> : <FaRegHeart />} Like
                 </button>
-
-                <button
-                    onClick={() => setShowComments(!showComments)}
-                    className="flex items-center space-x-2 px-4 py-2 rounded hover:bg-gray-100 transition text-gray-600"
-                >
-                    <FaRegComment />
-                    <span>Comment</span>
+                <button>
+                    <FaRegComment /> Comment
                 </button>
-
-                <button className="flex items-center space-x-2 px-4 py-2 rounded hover:bg-gray-100 transition text-gray-600">
-                    <FaShare />
-                    <span>Share</span>
+                <button>
+                    <FaShare /> Share
                 </button>
             </div>
 
+            {/* Comments */}
             {showComments && (
                 <div className="px-4 pb-4 border-t bg-gray-50">
+                    {comments.map((comment) => {
+                        const canEdit =
+                            comment.user._id === user._id ||
+                            post.user._id === user._id;
+
+                        return (
+                            <div
+                                key={comment._id}
+                                className="flex justify-between items-start text-sm mb-2"
+                            >
+                                <div className="flex-1">
+                                    <span className="font-semibold">
+                                        {comment.user.fullName}
+                                    </span>{' '}
+                                    {editingCommentId === comment._id ? (
+                                        <>
+                                            <textarea
+                                                value={editedComment}
+                                                onChange={(e) => setEditedComment(e.target.value)}
+                                                className="w-full border rounded p-1 mt-1"
+                                            />
+                                            <div className="flex gap-2 mt-1">
+                                                <button
+                                                    onClick={() => handleCommentUpdate(comment._id)}
+                                                    className="text-blue-600 text-xs"
+                                                >
+                                                    Save
+                                                </button>
+                                                <button
+                                                    onClick={() => setEditingCommentId(null)}
+                                                    className="text-gray-500 text-xs"
+                                                >
+                                                    Cancel
+                                                </button>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <span>{comment.content}</span>
+                                    )}
+                                </div>
+
+                                {canEdit && editingCommentId !== comment._id && (
+                                    <div className="flex gap-2 ml-2 mt-1">
+                                        <button onClick={() => handleCommentEdit(comment)}>
+                                            <FaEdit size={12} />
+                                        </button>
+                                        <button onClick={() => handleCommentDelete(comment._id)}>
+                                            <FaTrash size={12} />
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
+
                     <CommentBox
                         postId={post._id}
                         onCommentAdded={(newComment) => {
                             setComments([...comments, newComment]);
-                            setCommentsCount(commentsCount + 1);
+                            setCommentsCount((c) => c + 1);
                         }}
                     />
                 </div>
