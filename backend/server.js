@@ -11,6 +11,7 @@ import postRoutes from './src/routes/postRoutes.js';
 import commentRoutes from './src/routes/commentRoutes.js';
 import storyRoutes from './src/routes/storyRoutes.js';
 import notificationRoutes from './src/routes/notificationRoutes.js';
+import uploadRoutes from './src/routes/uploadRoutes.js';
 
 import path from 'path';
 
@@ -44,6 +45,7 @@ app.use(cors({
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/posts', postRoutes);
+app.use('/api/upload', uploadRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/stories', storyRoutes);
 app.use('/api/notifications', notificationRoutes);

@@ -1,9 +1,15 @@
 import { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { FaPlus } from 'react-icons/fa';
+import CreateStory from './CreateStory';
+
+
+
 
 const StoryList = () => {
     const [stories, setStories] = useState([]);
+    const [showCreate, setShowCreate] = useState(false);
+
     // Group stories by user for UI? Or just show list.
     // Let's assume the API returns flat list, we'll dedupe by user or just show all.
     // Better: Filter unique users who have stories.
@@ -35,13 +41,17 @@ const StoryList = () => {
     return (
         <div className="flex space-x-4 overflow-x-auto pb-4 mb-4 scrollbar-hide">
             {/* Create Story Button */}
-            <div className="flex-shrink-0 flex flex-col items-center space-y-1 cursor-pointer">
+            {/* Create Story Button */}
+            <div
+                onClick={() => setShowCreate(true)}
+                className="flex-shrink-0 flex flex-col items-center space-y-1 cursor-pointer"
+            >
                 <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center border-2 border-dashed border-blue-500 text-blue-500 relative">
                     <FaPlus size={24} />
-                    {/* Input for upload could be hidden here */}
                 </div>
                 <span className="text-xs font-medium">Add Story</span>
             </div>
+
 
             {/* Friends Stories */}
             {uniqueStories.map(story => (
@@ -54,9 +64,17 @@ const StoryList = () => {
                         />
                     </div>
                     <span className="text-xs font-medium max-w-[64px] truncate">{story.user.username}</span>
-                    {/* On click -> Open Modal Viewer (not implemented in this simplified step) */}
+
                 </div>
             ))}
+            {showCreate && (
+                <CreateStory
+                    onClose={() => setShowCreate(false)}
+                    onStoryCreated={(newStory) =>
+                        setStories([newStory, ...stories])
+                    }
+                />
+            )}
         </div>
     );
 };
