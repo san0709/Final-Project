@@ -10,6 +10,10 @@ import Notifications from './pages/Notifications';
 import EditProfile from './pages/EditProfile';
 import FriendRequests from './pages/FriendRequests';
 import Search from './pages/Search';
+import FriendsList from './pages/FriendsList';
+import Friends from './pages/Friends';
+
+
 
 // Protected Route
 const ProtectedRoute = ({ children }) => {
@@ -64,7 +68,25 @@ const AppRoutes = () => {
           </ProtectedRoute>
         } />
       </Route>
+      <Route
+        path="/friends/:userId"
+        element={
+          <ProtectedRoute>
+            <FriendsList />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/friends/:userId"
+        element={
+          <ProtectedRoute>
+            <Friends />
+          </ProtectedRoute>
+        }
+      />
+
     </Routes>
+
   );
 };
 

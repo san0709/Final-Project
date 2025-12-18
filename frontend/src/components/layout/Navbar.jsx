@@ -8,6 +8,8 @@ import { FaUserFriends } from 'react-icons/fa';
 
 const Navbar = () => {
     const { user, logout } = useAuth();
+    console.log('NAVBAR USER:', user);
+
     const navigate = useNavigate();
     const [search, setSearch] = useState('');
     const [requestCount, setRequestCount] = useState(0);
@@ -18,7 +20,8 @@ const Navbar = () => {
                 const { data } = await api.get('/users/friend-requests');
                 setRequestCount(data.length);
             } catch (err) {
-                console.error('Failed to fetch friend requests');
+                // Silent fail – happens on initial load / no auth / no requests
+                setRequestCount(0);
             }
         };
 

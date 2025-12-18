@@ -20,8 +20,9 @@ const Profile = () => {
 
     useEffect(() => {
         const fetchProfileData = async () => {
-            setLoading(true);
             try {
+                setLoading(true);
+
                 // 1️⃣ Fetch profile
                 const { data: userProfile } = await api.get(`/users/${username}`);
                 setProfile(userProfile);
@@ -32,6 +33,7 @@ const Profile = () => {
                 );
                 setPosts(userPosts);
 
+                // Own profile → no friend logic
                 if (!currentUser || currentUser._id === userProfile._id) {
                     setLoading(false);
                     return;
@@ -60,7 +62,7 @@ const Profile = () => {
                     return;
                 }
 
-                // 5️⃣ Check SENT requests  🔥 IMPORTANT
+                // 5️⃣ Check SENT requests
                 const { data: sentRequests } = await api.get(
                     '/users/sent-requests'
                 );
@@ -101,9 +103,7 @@ const Profile = () => {
     // 🔹 CANCEL sent request
     const cancelFriendRequest = async () => {
         try {
-            await api.delete(
-                `/users/friend-request/${requestId}/cancel`
-            );
+            await api.delete(`/users/friend-request/${requestId}/cancel`);
             setFriendStatus('none');
             setRequestId(null);
         } catch {
@@ -114,9 +114,7 @@ const Profile = () => {
     // 🔹 ACCEPT received request
     const acceptRequest = async () => {
         try {
-            await api.put(
-                `/users/friend-request/${requestId}/accept`
-            );
+            await api.put(`/users/friend-request/${requestId}/accept`);
             setFriendStatus('friends');
             setRequestId(null);
         } catch {
@@ -127,9 +125,7 @@ const Profile = () => {
     // 🔹 DECLINE received request
     const declineRequest = async () => {
         try {
-            await api.put(
-                `/users/friend-request/${requestId}/decline`
-            );
+            await api.put(`/users/friend-request/${requestId}/decline`);
             setFriendStatus('none');
             setRequestId(null);
         } catch {
@@ -177,10 +173,16 @@ const Profile = () => {
 
                     <div className="ml-40 flex justify-between items-end">
                         <div>
-                            <h1 className="text-2xl font-bold">{profile.fullName}</h1>
-                            <p className="text-gray-500">@{profile.username}</p>
+                            <h1 className="text-2xl font-bold">
+                                {profile.fullName}
+                            </h1>
+                            <p className="text-gray-500">
+                                @{profile.username}
+                            </p>
                             {profile.bio && (
-                                <p className="text-gray-700 mt-2">{profile.bio}</p>
+                                <p className="text-gray-700 mt-2">
+                                    {profile.bio}
+                                </p>
                             )}
                         </div>
 
@@ -236,14 +238,17 @@ const Profile = () => {
                         )}
 
                         {/* EDIT PROFILE */}
-                        {currentUser && currentUser._id === profile._id && (
-                            <button
-                                onClick={() => navigate('/profile/edit')}
-                                className="border border-gray-300 px-4 py-2 rounded-full hover:bg-gray-50"
-                            >
-                                Edit Profile
-                            </button>
-                        )}
+                        {currentUser &&
+                            currentUser._id === profile._id && (
+                                <button
+                                    onClick={() =>
+                                        navigate('/profile/edit')
+                                    }
+                                    className="border border-gray-300 px-4 py-2 rounded-full hover:bg-gray-50"
+                                >
+                                    Edit Profile
+                                </button>
+                            )}
                     </div>
 
                     {/* STATS */}
@@ -252,11 +257,19 @@ const Profile = () => {
                             <span className="font-bold">{posts.length}</span>
                             <span className="text-gray-500 ml-1">Posts</span>
                         </div>
-                        <div>
+
+                        <div
+                            onClick={() =>
+                                navigate(`/friends/${profile._id}`)
+                            }
+                            className="cursor-pointer"
+                        >
                             <span className="font-bold">
                                 {profile.friends?.length || 0}
                             </span>
-                            <span className="text-gray-500 ml-1">Friends</span>
+                            <span className="text-gray-500 ml-1 hover:underline">
+                                Friends
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -269,7 +282,10 @@ const Profile = () => {
                         <h3 className="font-bold mb-2">About</h3>
                         <div className="space-y-2 text-sm text-gray-600">
                             <p>
-                                Lives in <strong>{profile.location || 'Unknown'}</strong>
+                                Lives in{' '}
+                                <strong>
+                                    {profile.location || 'Unknown'}
+                                </strong>
                             </p>
                             {profile.website && (
                                 <p>
@@ -284,7 +300,9 @@ const Profile = () => {
                             )}
                             <p>
                                 Joined{' '}
-                                {new Date(profile.createdAt).toLocaleDateString()}
+                                {new Date(
+                                    profile.createdAt
+                                ).toLocaleDateString()}
                             </p>
                         </div>
                     </div>
@@ -294,6 +312,7 @@ const Profile = () => {
                     {posts.map((post) => (
                         <PostCard key={post._id} post={post} />
                     ))}
+
                     {posts.length === 0 && (
                         <div className="text-center py-10 bg-white rounded shadow text-gray-500">
                             No posts to show.
