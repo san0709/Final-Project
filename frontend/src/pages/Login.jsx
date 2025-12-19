@@ -24,7 +24,19 @@ const Login = () => {
         <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
             <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
                 <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Login</h2>
-                {error && <div className="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm">{error}</div>}
+                {error && (
+                    <div className="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm">
+                        <p>{error}</p>
+                        <div className="mt-2 text-right">
+                            <Link
+                                to="/forgot-password"
+                                className="text-blue-600 underline text-xs"
+                            >
+                                Forgot password?
+                            </Link>
+                        </div>
+                    </div>
+                )}
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Email</label>
@@ -53,6 +65,11 @@ const Login = () => {
                         Login
                     </button>
                 </form>
+                <div className="mt-3 text-center text-sm">
+                    <Link to="/forgot-password" className="text-blue-600 hover:underline">
+                        Forgot password?
+                    </Link>
+                </div>
                 <div className="mt-4 text-center text-sm text-gray-600">
                     Don't have an account? <Link to="/register" className="text-blue-600 hover:underline">Register</Link>
                 </div>

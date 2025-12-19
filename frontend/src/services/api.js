@@ -12,8 +12,10 @@ const api = axios.create({
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        const message = error.response?.data?.message || error.message;
-        return Promise.reject(message);
+        if (error.response?.status === 401) {
+            return Promise.reject(error);
+        }
+        return Promise.reject(error);
     }
 );
 

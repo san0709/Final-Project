@@ -15,7 +15,9 @@ export const AuthProvider = ({ children }) => {
                 const { data } = await api.get('/users/profile/me');
                 setUser(data);
             } catch (error) {
-                // Not logged in
+                if (error.response?.status !== 401) {
+                    console.error(error);
+                }
                 setUser(null);
             } finally {
                 setLoading(false);
@@ -25,48 +27,62 @@ export const AuthProvider = ({ children }) => {
         checkUserLoggedIn();
     }, []);
 
+    // 🔐 LOGIN
     const login = async (email, password) => {
-        const { data } = await api.post('/auth/login', { email, password });
-
-        // We only returned basic info in login response, 
-        // but the cookie is set. Let's fetch full profile or just use what we have.
-        // Login response: { _id, name, email }
-        // Ideally we want the same shape as profile/me.
-        // Let's refetch profile to be safe and consistent
-
         try {
-            const profileRes = await api.get('/users/profile/me');
-            setUser(profileRes.data);
-        } catch {
-            setUser(data); // Fallback
-        }
+            const { data } = await api.post('/auth/login', { email, password });
 
-        return data;
+            try {
+                const profileRes = await api.get('/users/profile/me');
+                setUser(profileRes.data);
+            } catch {
+                setUser(data);
+            }
+
+            return data;
+        } catch (error) {
+            throw error.response?.data?.message || 'Login failed';
+        }
     };
 
+    // 📝 REGISTER
     const register = async (userData) => {
-        const { data } = await api.post('/auth/register', userData);
-
         try {
-            const profileRes = await api.get('/users/profile/me');
-            setUser(profileRes.data);
-        } catch {
-            setUser(data);
+            const { data } = await api.post('/auth/register', userData);
+
+            try {
+                const profileRes = await api.get('/users/profile/me');
+                setUser(profileRes.data);
+            } catch {
+                setUser(data);
+            }
+
+            return data;
+        } catch (error) {
+            throw error.response?.data?.message || 'Registration failed';
         }
-        return data;
     };
 
+    // 🚪 LOGOUT  ✅ CORRECT PLACE
     const logout = async () => {
-        await api.post('/auth/logout');
-        setUser(null);
+        try {
+            await api.post('/auth/logout');
+        } catch (err) {
+            console.error('Logout failed', err);
+        } finally {
+            setUser(null);
+        }
     };
 
+    // 👤 UPDATE PROFILE
     const updateProfile = (updatedUser) => {
         setUser(updatedUser);
-    }
+    };
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, register, logout, updateProfile }}>
+        <AuthContext.Provider
+            value={{ user, loading, login, register, logout, updateProfile }}
+        >
             {!loading && children}
         </AuthContext.Provider>
     );

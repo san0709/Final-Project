@@ -2,8 +2,12 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Layout from './components/layout/Layout';
 
+// Pages
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+
 import Home from './pages/Home';
 import Profile from './pages/Profile';
 import Notifications from './pages/Notifications';
@@ -13,90 +17,49 @@ import Search from './pages/Search';
 import FriendsList from './pages/FriendsList';
 import Friends from './pages/Friends';
 
-
-
-// Protected Route
+// 🔐 Protected Route
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
 
   if (loading) return <div>Loading...</div>;
-  if (!user) return <Navigate to="/login" />;
+  if (!user) return <Navigate to="/login" replace />;
 
   return children;
 };
 
-const AppRoutes = () => {
-  return (
-    <Routes>
-      <Route element={<Layout />}>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-
-        <Route path="/" element={
-          <ProtectedRoute>
-            <Home />
-          </ProtectedRoute>
-        } />
-
-        <Route path="/profile/edit" element={
-          <ProtectedRoute>
-            <EditProfile />
-          </ProtectedRoute>
-        } />
-
-        <Route path="/profile/:username" element={
-          <ProtectedRoute>
-            <Profile />
-          </ProtectedRoute>
-        } />
-
-        <Route path="/friend-requests" element={
-          <ProtectedRoute>
-            <FriendRequests />
-          </ProtectedRoute>
-        } />
-
-        <Route path="/search" element={
-          <ProtectedRoute>
-            <Search />
-          </ProtectedRoute>
-        } />
-
-        <Route path="/notifications" element={
-          <ProtectedRoute>
-            <Notifications />
-          </ProtectedRoute>
-        } />
-      </Route>
-      <Route
-        path="/friends/:userId"
-        element={
-          <ProtectedRoute>
-            <FriendsList />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/friends/:userId"
-        element={
-          <ProtectedRoute>
-            <Friends />
-          </ProtectedRoute>
-        }
-      />
-
-    </Routes>
-
-  );
-};
-
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <AppRoutes />
-      </Router>
-    </AuthProvider>
+    <Router>
+      <AuthProvider>
+        <Routes>
+
+          {/* 🔓 PUBLIC ROUTES (NO LAYOUT) */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
+
+          {/* 🔒 PROTECTED ROUTES (WITH LAYOUT) */}
+          <Route
+            element={
+              <ProtectedRoute>
+                <Layout />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="/" element={<Home />} />
+            <Route path="/profile/edit" element={<EditProfile />} />
+            <Route path="/profile/:username" element={<Profile />} />
+            <Route path="/friend-requests" element={<FriendRequests />} />
+            <Route path="/search" element={<Search />} />
+            <Route path="/notifications" element={<Notifications />} />
+            <Route path="/friends/:userId" element={<Friends />} />
+            <Route path="/friends/:userId/list" element={<FriendsList />} />
+          </Route>
+
+        </Routes>
+      </AuthProvider>
+    </Router>
   );
 }
 

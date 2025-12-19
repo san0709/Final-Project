@@ -12,7 +12,7 @@ import jwt from 'jsonwebtoken';
 const authUser = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select('+password');
 
     if (user && (await user.matchPassword(password))) {
         generateToken(res, user._id);
@@ -99,7 +99,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
         await sendEmail({
             email: user.email,
             subject: 'Password Reset Token',
-            message,
+            text: message,
         });
 
         // For development convenience

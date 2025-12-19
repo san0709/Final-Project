@@ -24,7 +24,6 @@ router.route('/')
         upload.single('media'),
         createPost
     );
-
 router.get('/feed', protect, getFeedPosts);
 router.get('/user/:userId', protect, getUserPosts);
 

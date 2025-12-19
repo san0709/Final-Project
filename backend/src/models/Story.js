@@ -27,7 +27,7 @@ const storySchema = mongoose.Schema({
     // Auto-expire logic:
     expireAt: {
         type: Date,
-        default: Date.now,
+        default: () => Date.now() + 24 * 60 * 60 * 1000, // 24 hrs
         expires: 86400, // MongoDB TTL: 86400 seconds = 24 hours
     },
 }, {
