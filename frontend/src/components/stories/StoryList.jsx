@@ -51,10 +51,11 @@ const StoryList = () => {
                 <div key={story._id} className="flex-shrink-0 flex flex-col items-center space-y-1 cursor-pointer">
                     <div className="w-16 h-16 rounded-full p-[2px] bg-gradient-to-tr from-yellow-400 to-red-500">
                         <img
-                            src={`http://localhost:5000${story.mediaUrl}`}
+                            src={`${import.meta.env.VITE_API_URL}${story.mediaUrl}`}
                             alt={story.user.username}
                             className="w-full h-full rounded-full object-cover border-2 border-white"
                         />
+
 
                     </div>
                     <span className="text-xs font-medium max-w-[64px] truncate">{story.user.username}</span>
