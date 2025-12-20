@@ -29,7 +29,7 @@ A full-stack MERN social media application with real-time features, authenticati
 - Responsive mobile-first design
 - Optimistic UI updates
 - Infinite scroll pagination
-- Image/video support
+- Image/video support (Local storage with Multer)
 - MongoDB TTL for auto-expiring stories
 - Protected routes
 - Error handling and validation
@@ -37,9 +37,9 @@ A full-stack MERN social media application with real-time features, authenticati
 ## 🛠️ Tech Stack
 
 ### Frontend
-- React 18 (Vite)
-- TailwindCSS
-- React Router v6
+- React 19 (Vite)
+- TailwindCSS v4
+- React Router v7
 - Axios
 - Context API for state management
 - React Icons
@@ -54,6 +54,7 @@ A full-stack MERN social media application with real-time features, authenticati
 - Nodemailer
 - Cookie-parser
 - CORS
+- Multer (File Uploads)
 
 ## 📁 Project Structure
 
@@ -178,6 +179,9 @@ See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed deployment instructions for:
 - `DELETE /api/posts/:id` - Delete post
 - `PUT /api/posts/:id/like` - Like/unlike post
 
+### Uploads
+- `POST /api/upload` - Upload image/video file
+
 ### Comments
 - `GET /api/posts/:postId/comments` - Get post comments
 - `POST /api/posts/:postId/comments` - Add comment
@@ -199,6 +203,7 @@ See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed deployment instructions for:
 ### Manual Testing Checklist
 - [ ] User registration and login
 - [ ] Create, edit, delete posts
+- [ ] Uploading images/videos
 - [ ] Like and comment functionality
 - [ ] Friend request flow
 - [ ] Notifications display
@@ -230,7 +235,7 @@ This project is licensed under the ISC License.
 
 ## 👥 Authors
 
-- Your Name - Initial work
+- Sandy - Initial work
 
 ## 🙏 Acknowledgments
 
