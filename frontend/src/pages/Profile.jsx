@@ -148,11 +148,12 @@ const Profile = () => {
                 <div className="h-48 bg-gradient-to-r from-blue-400 to-purple-500 relative">
                     {profile.coverPhoto && (
                         <img
-                            src={`http://localhost:5000${profile.coverPhoto}`}
+                            src={`${import.meta.env.VITE_API_URL}${profile.coverPhoto}`}
                             alt="Cover"
                             className="w-full h-full object-cover"
                         />
                     )}
+
                 </div>
 
                 <div className="px-6 py-4 relative">
@@ -162,12 +163,11 @@ const Profile = () => {
                             <img
                                 src={
                                     profile.profilePicture
-                                        ? `http://localhost:5000${profile.profilePicture}`
+                                        ? `${import.meta.env.VITE_API_URL}${profile.profilePicture}`
                                         : 'https://placehold.co/150'
                                 }
-                                alt={profile.username}
-                                className="w-full h-full object-cover"
                             />
+
                         </div>
                     </div>
 
