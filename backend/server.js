@@ -29,22 +29,28 @@ app.use(express.urlencoded({ extended: true }));
 // Cookies
 app.use(cookieParser());
 
-// 🔥 CORS – REQUIRED FOR NETLIFY + COOKIES
-app.use(
-    cors({
-        origin: [
-            'http://localhost:5173',
-            'http://localhost:3000',
-            'https://zenchatsocialapp.netlify.app',
-        ],
-        credentials: true,
-    })
-);
-
-// 🔥 IMPORTANT for Render / Netlify cookies
+// 🔥 TRUST PROXY (IMPORTANT FOR RENDER)
 app.set('trust proxy', 1);
 
-// Static uploads (for images, stories, profile pics)
+// 🔥 CORS OPTIONS (FINAL)
+const corsOptions = {
+    origin: [
+        'http://localhost:5173',
+        'http://localhost:3000',
+        'https://zenchatsocialapp.netlify.app',
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+// 🔥 Enable CORS
+app.use(cors(corsOptions));
+
+// 🔥 ENABLE PREFLIGHT (THIS WAS MISSING)
+app.options('*', cors(corsOptions));
+
+// Static uploads
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 /* -------------------- ROUTES -------------------- */

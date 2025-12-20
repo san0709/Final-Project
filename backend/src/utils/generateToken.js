@@ -9,8 +9,8 @@ const generateToken = (res, userId) => {
 
     res.cookie('jwt', token, {
         httpOnly: true,
-        secure: false,    // 🔥 FORCE false for localhost
-        sameSite: 'lax',  // 🔥 FORCE lax for localhost
+        secure: true / false,    // 🔥 FORCE false for localhost
+        sameSite: 'none' / 'lax',  // 🔥 FORCE lax for localhost
         maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 };
