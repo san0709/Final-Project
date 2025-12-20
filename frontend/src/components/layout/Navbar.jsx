@@ -89,7 +89,7 @@ const Navbar = () => {
                             <Link to={`/profile/${user.username}`} className="text-gray-600 hover:text-blue-600 p-2 rounded-full hover:bg-gray-100 transition">
                                 {user.profilePicture ? (
                                     <img
-                                        src={`http://localhost:5000${user.profilePicture}`}
+                                        src={`${import.meta.env.VITE_API_URL}${user.profilePicture}`}
                                         alt="Profile"
                                         className="w-6 h-6 rounded-full object-cover"
                                     />
