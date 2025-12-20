@@ -2,6 +2,8 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import path from 'path';
+
 import connectDB from './src/config/db.js';
 import { notFound, errorHandler } from './src/middleware/errorMiddleware.js';
 
@@ -13,35 +15,40 @@ import storyRoutes from './src/routes/storyRoutes.js';
 import notificationRoutes from './src/routes/notificationRoutes.js';
 import uploadRoutes from './src/routes/uploadRoutes.js';
 
-import path from 'path';
-
 dotenv.config();
 connectDB();
 
 const app = express();
 
+/* -------------------- MIDDLEWARE -------------------- */
+
 // Body parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Cookies
 app.use(cookieParser());
 
-// Static uploads
+// 🔥 CORS – REQUIRED FOR NETLIFY + COOKIES
+app.use(
+    cors({
+        origin: [
+            'http://localhost:5173',
+            'http://localhost:3000',
+            'https://zenchatsocialapp.netlify.app',
+        ],
+        credentials: true,
+    })
+);
+
+// 🔥 IMPORTANT for Render / Netlify cookies
+app.set('trust proxy', 1);
+
+// Static uploads (for images, stories, profile pics)
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
-// CORS (must be BEFORE routes)
-app.use(cors({
-    origin: (origin, callback) => {
-        if (!origin) return callback(null, true);
-        if (origin.startsWith('http://localhost')) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true
-}));
+/* -------------------- ROUTES -------------------- */
 
-// ROUTES (ONLY ONCE ✅)
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/posts', postRoutes);
@@ -50,13 +57,19 @@ app.use('/api/comments', commentRoutes);
 app.use('/api/stories', storyRoutes);
 app.use('/api/notifications', notificationRoutes);
 
+// Health check
 app.get('/', (req, res) => {
     res.send('Server is ready');
 });
 
-// Error handlers
+/* -------------------- ERROR HANDLING -------------------- */
+
 app.use(notFound);
 app.use(errorHandler);
 
-const port = process.env.PORT || 5000;
-app.listen(port, () => console.log(`Server started on port ${port}`));
+/* -------------------- SERVER -------------------- */
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () =>
+    console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
+);
