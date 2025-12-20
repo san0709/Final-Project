@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { FaHome, FaUser, FaBell, FaSignOutAlt, FaSearch } from 'react-icons/fa';
+import { API_URL } from '../../services/api';
 import { useState, useEffect } from 'react';
 import { FaUserFriends } from 'react-icons/fa';
 
@@ -89,7 +90,7 @@ const Navbar = () => {
                             <Link to={`/profile/${user.username}`} className="text-gray-600 hover:text-blue-600 p-2 rounded-full hover:bg-gray-100 transition">
                                 {user.profilePicture ? (
                                     <img
-                                        src={`${import.meta.env.VITE_API_URL}${user.profilePicture}`}
+                                        src={`${API_URL}${user.profilePicture}`}
                                         alt="Profile"
                                         className="w-6 h-6 rounded-full object-cover"
                                     />

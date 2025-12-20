@@ -10,7 +10,7 @@ import {
     FaEllipsisH,
 } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
-import api from '../../services/api';
+import api, { API_URL } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import CommentBox from './CommentBox';
 
@@ -196,12 +196,12 @@ const PostCard = ({ post }) => {
                 <div>
                     {post.mediaType === 'image' ? (
                         <img
-                            src={`http://localhost:5000${post.mediaUrl}`}
+                            src={`${API_URL}${post.mediaUrl}`}
                             className="w-full max-h-[500px] object-cover"
                         />
                     ) : (
                         <video
-                            src={`http://localhost:5000${post.mediaUrl}`}
+                            src={`${API_URL}${post.mediaUrl}`}
                             controls
                             className="w-full max-h-[500px]"
                         />

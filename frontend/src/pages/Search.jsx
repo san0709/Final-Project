@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import api from '../services/api';
+import api, { API_URL } from '../services/api';
 
 const Search = () => {
     const [searchParams] = useSearchParams();
@@ -46,7 +46,7 @@ const Search = () => {
                             <img
                                 src={
                                     user.profilePicture
-                                        ? `http://localhost:5000${user.profilePicture}`
+                                        ? `${API_URL}${user.profilePicture}`
                                         : 'https://placehold.co/40'
                                 }
                                 alt={user.username}

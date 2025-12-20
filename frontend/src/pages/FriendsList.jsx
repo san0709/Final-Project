@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import api from '../services/api';
+import api, { API_URL } from '../services/api';
 
 const FriendsList = () => {
     const { userId } = useParams();
@@ -42,7 +42,7 @@ const FriendsList = () => {
                             <img
                                 src={
                                     friend.profilePicture
-                                        ? `http://localhost:5000${friend.profilePicture}`
+                                        ? `${API_URL}${friend.profilePicture}`
                                         : 'https://placehold.co/60'
                                 }
                                 className="w-12 h-12 rounded-full object-cover"

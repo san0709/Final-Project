@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import api from '../services/api';
+import api, { API_URL } from '../services/api';
 import { FaUserTimes } from 'react-icons/fa';
 
 const Friends = () => {
@@ -55,7 +55,7 @@ const Friends = () => {
                                 <img
                                     src={
                                         friend.profilePicture
-                                            ? `http://localhost:5000${friend.profilePicture}`
+                                            ? `${API_URL}${friend.profilePicture}`
                                             : 'https://placehold.co/50'
                                     }
                                     alt={friend.username}

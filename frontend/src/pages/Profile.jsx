@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import api from '../services/api';
+import api, { API_URL } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import PostCard from '../components/feed/PostCard';
 import { FaUserPlus, FaUserCheck } from 'react-icons/fa';
@@ -148,7 +148,7 @@ const Profile = () => {
                 <div className="h-48 bg-gradient-to-r from-blue-400 to-purple-500 relative">
                     {profile.coverPhoto && (
                         <img
-                            src={`${import.meta.env.VITE_API_URL}${profile.coverPhoto}`}
+                            src={`${API_URL}${profile.coverPhoto}`}
                             alt="Cover"
                             className="w-full h-full object-cover"
                         />
@@ -163,7 +163,7 @@ const Profile = () => {
                             <img
                                 src={
                                     profile.profilePicture
-                                        ? `${import.meta.env.VITE_API_URL}${profile.profilePicture}`
+                                        ? `${API_URL}${profile.profilePicture}`
                                         : 'https://placehold.co/150'
                                 }
                             />

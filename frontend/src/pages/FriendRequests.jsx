@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import api from '../services/api';
+import api, { API_URL } from '../services/api';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -64,7 +64,7 @@ const FriendRequests = () => {
                                 <img
                                     src={
                                         req.sender.profilePicture
-                                            ? `http://localhost:5000${req.sender.profilePicture}`
+                                            ? `${API_URL}${req.sender.profilePicture}`
                                             : 'https://placehold.co/50'
                                     }
                                     alt={req.sender.username}

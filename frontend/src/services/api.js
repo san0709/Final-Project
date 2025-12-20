@@ -1,8 +1,10 @@
 import axios from 'axios';
 
 
+export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const api = axios.create({
-    baseURL: 'https://zenchat-social-app.onrender.com/api',
+    baseURL: `${API_URL}/api`,
     withCredentials: true,
 });
 
