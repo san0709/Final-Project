@@ -10,16 +10,12 @@ const CreateStory = ({ onClose, onStoryCreated }) => {
         if (!file) return alert('Please select a photo or video');
 
         const formData = new FormData();
-        formData.append('media', file); // 🔥 MUST MATCH multer field
+        formData.append('media', file);
 
         try {
             setLoading(true);
 
-            const { data } = await api.post('/stories', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
+            const { data } = await api.post('/stories', formData); // 🔥 FIX
 
             onStoryCreated(data);
             onClose();
@@ -30,6 +26,7 @@ const CreateStory = ({ onClose, onStoryCreated }) => {
             setLoading(false);
         }
     };
+
 
     return (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">

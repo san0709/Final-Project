@@ -65,11 +65,11 @@ const Login = () => {
                         Login
                     </button>
                 </form>
-                <div className="mt-3 text-center text-sm">
+                {/* <div className="mt-3 text-center text-sm">
                     <Link to="/forgot-password" className="text-blue-600 hover:underline">
                         Forgot password?
                     </Link>
-                </div>
+                </div> */}
                 <div className="mt-4 text-center text-sm text-gray-600">
                     Don't have an account? <Link to="/register" className="text-blue-600 hover:underline">Register</Link>
                 </div>
