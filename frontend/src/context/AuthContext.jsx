@@ -32,6 +32,10 @@ export const AuthProvider = ({ children }) => {
         try {
             const { data } = await api.post('/auth/login', { email, password });
 
+            if (data.token) {
+                localStorage.setItem('token', data.token);
+            }
+
             try {
                 const profileRes = await api.get('/users/profile/me');
                 setUser(profileRes.data);
@@ -49,6 +53,10 @@ export const AuthProvider = ({ children }) => {
     const register = async (userData) => {
         try {
             const { data } = await api.post('/auth/register', userData);
+
+            if (data.token) {
+                localStorage.setItem('token', data.token);
+            }
 
             try {
                 const profileRes = await api.get('/users/profile/me');
@@ -70,6 +78,7 @@ export const AuthProvider = ({ children }) => {
         } catch (err) {
             console.error('Logout failed', err);
         } finally {
+            localStorage.removeItem('token');
             setUser(null);
         }
     };

@@ -11,12 +11,15 @@ const authUser = asyncHandler(async (req, res) => {
     const user = await User.findOne({ email }).select('+password');
 
     if (user && (await user.matchPassword(password))) {
-        generateToken(res, user._id);
+        const token = generateToken(res, user._id);
 
         res.json({
             _id: user._id,
-            name: user.fullName,
+            fullName: user.fullName,
+            username: user.username,
             email: user.email,
+            profilePicture: user.profilePicture,
+            token, // Send token for fallback
         });
     } else {
         res.status(401);
@@ -41,12 +44,15 @@ const registerUser = asyncHandler(async (req, res) => {
         password,
     });
 
-    generateToken(res, user._id);
+    const token = generateToken(res, user._id);
 
     res.status(201).json({
         _id: user._id,
-        name: user.fullName,
+        fullName: user.fullName,
+        username: user.username,
         email: user.email,
+        profilePicture: user.profilePicture,
+        token,
     });
 });
 
