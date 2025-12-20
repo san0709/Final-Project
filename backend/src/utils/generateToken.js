@@ -9,10 +9,11 @@ const generateToken = (res, userId) => {
 
     res.cookie('jwt', token, {
         httpOnly: true,
-        secure: true / false,    // 🔥 FORCE false for localhost
-        sameSite: 'none' / 'lax',  // 🔥 FORCE lax for localhost
+        secure: true,        // REQUIRED for https
+        sameSite: 'none',    // REQUIRED for cross-site
         maxAge: 30 * 24 * 60 * 60 * 1000,
     });
+
 };
 
 export default generateToken;
