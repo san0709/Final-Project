@@ -10,10 +10,6 @@ const StoryList = () => {
     const [stories, setStories] = useState([]);
     const [showCreate, setShowCreate] = useState(false);
 
-    // Group stories by user for UI? Or just show list.
-    // Let's assume the API returns flat list, we'll dedupe by user or just show all.
-    // Better: Filter unique users who have stories.
-
     useEffect(() => {
         const fetchStories = async () => {
             try {
@@ -26,8 +22,7 @@ const StoryList = () => {
         fetchStories();
     }, []);
 
-    // Simplified: Just show unique users with stories
-    // We can show the first story of each user as preview
+
     const uniqueStories = [];
     const userIds = new Set();
 
@@ -40,8 +35,6 @@ const StoryList = () => {
 
     return (
         <div className="flex space-x-4 overflow-x-auto pb-4 mb-4 scrollbar-hide">
-            {/* Create Story Button */}
-            {/* Create Story Button */}
             <div
                 onClick={() => setShowCreate(true)}
                 className="flex-shrink-0 flex flex-col items-center space-y-1 cursor-pointer"

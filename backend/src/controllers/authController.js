@@ -83,13 +83,13 @@ This link expires in 10 minutes.
 `;
 
     try {
-        // await sendEmail({
-        //     email: user.email,
-        //     subject: 'Password Reset',
-        //     message, // ✅ FIXED
-        // });
+        await sendEmail({
+            email: user.email,
+            subject: 'Password Reset',
+            message, // ✅ FIXED
+        });
 
-        res.json({ message: 'Password reset via email disabled for demo' });
+        res.status(200).json({ success: true, data: 'Email sent' });
     } catch (error) {
         console.error('EMAIL ERROR 👉', error);
 
