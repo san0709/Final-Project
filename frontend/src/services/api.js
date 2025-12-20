@@ -2,8 +2,8 @@ import axios from 'axios';
 
 
 const api = axios.create({
-    baseURL: 'http://localhost:5000/api', // 🔥 VERY IMPORTANT
-    withCredentials: true,               // 🔥 MUST
+    baseURL: 'https://zenchat-social-app.onrender.com/api',
+    withCredentials: true,
 });
 
 
