@@ -20,7 +20,36 @@ connectDB();
 
 const app = express();
 
+/* -------------------- 🔥 CORS MUST BE FIRST -------------------- */
+
+const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'https://zenchatsocialapp.netlify.app',
+];
+
+app.use(
+    cors({
+        origin: function (origin, callback) {
+            if (!origin) return callback(null, true);
+
+            if (allowedOrigins.includes(origin)) {
+                callback(null, true);
+            } else {
+                callback(new Error('Not allowed by CORS'));
+            }
+        },
+        credentials: true,
+    })
+);
+
+// 🔥 Handle preflight BEFORE anything else
+app.options('*', cors());
+
 /* -------------------- MIDDLEWARE -------------------- */
+
+// Trust proxy (Render)
+app.set('trust proxy', 1);
 
 // Body parsers
 app.use(express.json());
@@ -28,27 +57,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // Cookies
 app.use(cookieParser());
-
-// 🔥 TRUST PROXY (IMPORTANT FOR RENDER)
-app.set('trust proxy', 1);
-
-// 🔥 CORS OPTIONS (FINAL)
-const corsOptions = {
-    origin: [
-        'http://localhost:5173',
-        'http://localhost:3000',
-        'https://zenchatsocialapp.netlify.app',
-    ],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-};
-
-// 🔥 Enable CORS
-app.use(cors(corsOptions));
-
-// 🔥 ENABLE PREFLIGHT (THIS WAS MISSING)
-app.options('*', cors(corsOptions));
 
 // Static uploads
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
@@ -76,6 +84,6 @@ app.use(errorHandler);
 /* -------------------- SERVER -------------------- */
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () =>
-    console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
-);
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
