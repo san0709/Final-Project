@@ -1,14 +1,15 @@
 import axios from 'axios';
 
+// We trim the URL to prevent double-slash errors (//api)
+const rawURL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+export const API_URL = rawURL.replace(/\/$/, "");
 
-export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+console.log("Current API URL being used:", API_URL); // This will show up in your browser console
 
 const api = axios.create({
     baseURL: `${API_URL}/api`,
     withCredentials: true,
 });
-
-
 
 // Request interceptor to add Bearer token
 api.interceptors.request.use(
@@ -20,17 +21,6 @@ api.interceptors.request.use(
         return config;
     },
     (error) => Promise.reject(error)
-);
-
-// Response interceptor to handle parsing error messages
-api.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        if (error.response?.status === 401) {
-            return Promise.reject(error);
-        }
-        return Promise.reject(error);
-    }
 );
 
 export default api;
