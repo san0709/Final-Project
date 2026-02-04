@@ -8,6 +8,12 @@ const errorHandler = (err, req, res, next) => {
     let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
     let message = err.message;
 
+    // Handle MongoDB duplicate key error
+    if (err.code && err.code === 11000) {
+        message = 'User exists already, try registering with another name or email.';
+        statusCode = 400;
+    }
+
     // Check for Mongoose bad ObjectId
     if (err.name === 'CastError' && err.kind === 'ObjectId') {
         message = 'Resource not found';
